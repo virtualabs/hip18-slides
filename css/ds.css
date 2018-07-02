@@ -1,0 +1,8 @@
+body:not(.title):after {
+content: url(../images/digital.security.png);
+position: fixed;
+bottom: 1.5em;
+left: 1em;
+padding: 10px 10px 10px 10px;
+opacity: 0.5;
+/*box-shadow: 5px 5px 10px #888; */}

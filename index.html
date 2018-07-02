@@ -1,0 +1,710 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>From printed circuit boards to exploits: pwning IoT devices like a boss</title>
+
+		<link rel="stylesheet" href="css/font-awesome.css">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<link rel="stylesheet" href="css/ds.css"/>
+
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+				<section class="title">
+					<h1>From printed circuit boards to exploits</h1>
+					<h3>(pwning IoT devices like a boss)</h3>
+					<br>
+					<a href="#"><i class="fa fa-twitter" style="line-height: 1em; vertical-align: middle;"></i><span style="line-height: 1em; vertical-align: middle;">@virtualabs</span></a><span style="line-height: 1em; vertical-align: middle;"> | Hack in Paris '18</span>
+				</section>
+
+				<!-- Intro + warning -->
+				<section>
+					<section>
+						<h2>About me</h2>
+						<br>
+						<ul>
+							<li>Head of Research @ <b>Econocom Digital Security</b></li>
+							<li><b>Hardware hacker</b> (or at least pretending to be one)</li>
+							<li><b>Speaker</b> @ various conferences</li>
+							<li>Special interest in <b>Bluetooth Low Energy</b> since 2 years</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>What this talk is not</h2>
+						<br>
+						<div style="float: left; width: 45%">
+							<img src="images/no1hacker.jpg" class="plain">
+						</div>
+						<div style="float: left; width: 50%">
+							<ul>
+								<li class="fragment">A <b>detailed reference guide</b> on how to p0wn IoT devices</li>
+								<br>
+								<li class="fragment">A <b>list of tools</b> you may use to test devices</li>
+							</ul>
+						</div>
+					</section>
+
+					<section>
+						<h2>It is all about how to think and analyze and exploit</h2>
+						<br>
+						<div class="fragment">
+							<img src="images/hacker.png" class="plain" style="width: 50%;">
+							<h4>Let's do it the hacker way !</h4>
+						</div>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Methodology</h2>
+					</section>
+					<section>
+						<h3>Existing methodologies</h3>
+						<br>
+						<ul>
+							<li><b>Rapid7</b>'s methodology (7 basic steps)</li><br>
+							<li><b>OWASP IoT Project</b> (not really mature yet)</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>PCB reverse-engineering</h3>
+						<img src="images/method-0.png" class="plain fragment">
+					</section>
+					<section>
+						<h3>Components identification</h3>
+						<img src="images/method-1.png" class="plain">
+					</section>
+					<section>
+						<h3>Memory extraction</h3>
+						<img src="images/method-2.png" class="plain">
+					</section>
+					<section>
+						<h3>Software reverse-engineeering</h3>
+						<img src="images/method-3.png" class="plain">
+					</section>
+					<section>
+						<h3>Sniffing wired comms.</h3>
+						<img src="images/method-4.png" class="plain">
+					</section>
+					<section>
+						<h3>Sniffing wireless comms.</h3>
+						<img src="images/method-5.png" class="plain">
+					</section>
+					<section>
+						<h3>Find vulns &amp; attack !</h3>
+						<img src="images/method-6.png" class="plain">
+					</section>
+				</section>
+
+				<!-- Presentation de la méthodo -->
+					<section>
+						<h2>Our victim smartlock</h2>
+						<br>
+						<img src="images/thekeys.png" class="plain" style="width: 50%;">
+					</section>
+
+				<section>
+					<section>
+						<h2>Step #1: teardown</h2>
+						<br>
+						<img src="images/screwmadness.jpg" class="plain">
+					</section>
+
+					<section>
+						<h2>Use the right tools</h2>
+						<br>
+						<img src="images/screwdrivers.jpg" class="plain" style="float:left; width:40%;">
+						<img src="images/spudgers.jpg" class="plain" style="width: 45%;">
+					</section>
+
+					<section>
+						<img src="images/teardown.1.jpg" class="plain">
+					</section>
+
+					<section>
+						<h2>Keep calm !</h2>
+						<br>
+						<img src="images/overreact.gif" class="plain" style="width: 50%;">
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Step #2: Global Analysis</h2>
+						<br>
+						<img src="images/think2.gif" class="plain">
+					</section>
+
+					<section>
+						<h2>Electronics engineers are humans too</h2>
+						<br>
+						<ul>
+								<li>Components <b>position</b> based on their <b>global role</b></li>
+								<li>Connectors and components <b>producing heat</b> placed near the <b>edges</b></li>
+						</ul>
+					</section>
+
+					<section>
+						<img src="images/pcb-recto.png" class="plain">
+					</section>
+
+					<section>
+						<h2>Components identification</h2>
+						<br>
+						<div>
+							<div style="float: left;   width: 300px;">
+								<img src="images/compo-nrf52.png" class="plain">
+							</div>
+							<div style="float: left;">
+								<p><b>nRF52832</b></p><p> 2.4 GHz Bluetooth <br>Low Energy capable System-on-Chip</p>
+							</div>
+						</div>
+						<br>
+						<div style="clear: both;">
+							<div style="float: left; width: 300px;">
+								<img src="images/compo-drv8848.png" class="plain">
+							</div>
+							<div style="vertical-align: middle;">
+								<p><b>DRV8848</b></p>
+								<p>Dual H-Bridge Motor driver</p>
+						</div>
+						</div>
+					</section>
+
+					<section>
+						<h2>Functions vs. Components</h2>
+						<br>
+						<img src="images/functional-overview.png" class="plain">
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Step #3: recover Schematics</h2>
+						<br>
+						<img src="images/schematics.gif" class="plain" style="width: 70%;">
+					</section>
+
+					<section>
+						<h2>Pictures + software FTW</h2>
+						<br>
+						<ul>
+							<li class="fragment">Using high-res pictures (or multimeter), <b>follow tracks and vias</b></li>
+							<li class="fragment">Determine <b>protocols used</b> for Inter-IC communication</li>
+							<li class="fragment">Draw a <b>simplified schematics</b></li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Follow tracks and vias</h2>
+						<br>
+						<img src="images/re-elec-inkscape.png" class="plain"  style="width: 60%;">
+					</section>
+
+					<section>
+						<h2>Determine protocols used</h2>
+						<br>
+						<img src="images/nrf-brochage.png" class="plain" style="width: 40%;">
+					</section>
+
+					<section>
+						<h2>Simplified Schematics</h2>
+						<br>
+						<ul>
+							<li>Use Inkscape, Adobe Illustrator, MS Visio, or whatever</li>
+							<li>Draw only the interesting stuff, we do not want to counterfeit</li>
+					</section>
+
+
+					<section>
+						<img src="images/re-electronique.png" class="plain">
+					</section>
+
+					<section>
+						<img src="images/mindblown.gif" class="plain" style="width: 80%; height: 80%;">
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Step #4: get firmware</h2>
+						<br>
+						<img src="images/download.gif" class="plain">
+					</section>
+
+					<section>
+						<h2>Use debugging interfaces !</h2>
+						<br>
+						<ul>
+							<li>Offers a <b>proper way</b> to access Flash memory</li>
+							<li>Found in <b>&gt; 50%</b> of devices we have tested</li>
+							<li>Requires the <b>right adapter</b> to connect to</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Dumping firmware with OpenOCD</h2>
+						<br>
+						<pre><code>$ openocd -f interface/stlink-v2.cfg
+  -f target/nrf5x.cfg -c init -c halt
+  -c "dump_image /tmp/firmware.bin 0x0 0x80000"</code></pre>
+					</section>
+
+					<section>
+						<h2>When debugging is not enabled, abuse <i>OTA</i> !</h2>
+					</section>
+
+					<section>
+						<h2>Over-The-Air updates</h2>
+						<img src="images/fw-ota.png" style="border: none;">
+					</section>
+
+					<section>
+						<h2>Or dump every available <br>storage device 😎</h2>
+					</section>
+
+					<section>
+						<img src="images/tnm5000.png" class="plain" style="width: 40%;">
+					</section>
+
+					<section>
+						<h2>Firmware dumped !</h2>
+						<br>
+						<img src="images/fw-hex.png" class="plain">
+					</section>
+
+					<section>
+						<h2>Spare area is EVIL</h2>
+						<br>
+						<img src="images/nand-oob.png" class="plain">
+					</section>
+
+					<section>
+						<h2>Remove OOB data !</h2>
+						<br>
+						<h4>(and use ECC to fix errors)</h4>
+					</section>
+
+				</section>
+
+				<section>
+					<section>
+						<h2>Step #5: Determine Target architecture</h2>
+						<br>
+						<img src="images/archi.jpg" class="plain" style="width: 70%;">
+					</section>
+
+					<section>
+						<h3>Answer the basic questions</h3>
+						<br>
+						<ul>
+							<li class="fragment">What <b>architecture</b> is this ?</li>
+							<li class="fragment">Does it run an <b>OS</b> ?</li>
+							<li class="fragment">Does it use a <b>FS</b> ?</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>What architecture is it ?</h3>
+						<br>
+						<img src="images/nrf-doc-cpy.png">
+						<br>
+						<h5>ARM Cortex-M0 (ARMv7-M)</h()>
+					</section>
+
+					<section>
+						<h3>Does it run an OS ?</h3>
+						<br>
+						<h3 class="fragment">NOPE.</h3>
+					</section>
+
+					<section>
+						<h3>Does it use a FS ?</h3>
+						<br>
+						<div class="fragment">
+							<img src="images/soc-mm.png" class="plain" style="width: 20%; float: left; margin-left: 80px;">
+							<br>
+							<h3>Nope.</h3><br>
+						</div>
+					</section>
+
+					<section>
+						<h3>NRF51 Softdevice</h3>
+						<br>
+						<img src="images/nordic-sd.png" class="plain" style="width: 40%;">
+					</section>
+
+					<section>
+						<h3>Softdevice version ?<br><i>Easy-peasy</i> !</h3>
+						<br>
+						<pre><code>$ strings firmware-original.bin | grep sdk
+/home/benoit/workspace/nrf51/firmware/sdk/sdk13.0/components/libraries/timer/app_timer.c
+/home/benoit/workspace/nrf51/firmware/sdk/sdk13.0/components/softdevice/common/softdevice_handler/softdevice_handler.c
+/home/benoit/workspace/nrf51/firmware/sdk/sdk13.0/components/softdevice/common/softdevice_handler/softdevice_handler_appsh.c
+/home/benoit/workspace/nrf51/firmware/sdk/sdk13.0/components/libraries/bootloader/dfu/nrf_dfu_settings.c
+/home/benoit/workspace/nrf51/firmware/sdk/sdk13.0/components/libraries/bootloader/dfu/nrf_dfu_utils.c
+/home/benoit/workspace/nrf51/firmware/sdk/sdk13.0/components/libraries/timer/app_timer.c
+/home/benoit/workspace/nrf51/firmware/sdk/sdk13.0/components/softdevice/common/softdevice_handler/softdevice_handler.c</code></pre>					</section>
+
+					<section>
+						<h3>Quick reminder</h3>
+						<br>
+						<ul>
+							<li style="list-style-type: none;"><b>It runs an OS or use a known FS:</b><br>
+								<ul>
+									<li style="list-style-type: none;">You'd better drop binaries in IDA Pro</li>
+								</ul>
+							</li>
+							<br>
+							<li style="list-style-type: none;"><b>It uses no FS and looks like a crappy blob of data:</b><br>
+								<ul>
+									<li style="list-style-type: none;">You'd better figure out the architecture and memory layout.</li>
+								</ul>
+							</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h3>Step #6: Disassemble !</h3>
+						<br>
+						<img src="images/disassemble.jpg" style="border: none;">
+					</section>
+
+					<section>
+						<h3>Specify target architecture and layout</h3>
+						<br>
+						<ul>
+							<li><b>Configure CPU</b> accordingly</li>
+							<li>Configure <b>memory layout</b> if required</li>
+							<li>Perform a <b>quick sanity check</b> (strings xrefs, ...)</li>
+						</ul>
+					</section>
+
+					<section>
+						<img src="images/ida-cpu-options.png" style="border: none;">
+					</section>
+
+					<section>
+						<img src="images/ida-code-disas.png" style="border: none;">
+					</section>
+
+					<section>
+						<h3>Automated SDK functions detection and renaming</h3>
+						<br>
+						<ul>
+							<li>We developed our own tool to ease SoftDevice-based firmware reverse-engineering</li>
+							<br>
+							<li>It helps detecting SoftDevice version and automatically rename SDK exported functions</li>
+						</ul>
+					</section>
+
+					<section>
+						<video controls>
+							<source src="images/nrf5.ogv" type="video/ogg">
+						</video>
+					</section>
+
+					<section>
+						<h3>nRF5x-tools available on Github</h3>
+						<br>
+						<a href="https://github.com/DigitalSecurity/nrf5x-tools">https://github.com/DigitalSecurity/nrf5x-tools</a>
+					</section>
+
+					<section>
+						<h3>Mobile apps too</h3>
+						<br>
+						<img src="images/android-fota-sign.png" style="border: none;">
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Step #7: sniff all the things</h2>
+						<br>
+						<img src="images/sniff.gif" class="plain">
+					</section>
+
+					<section>
+						<h2>Sniff/intercept communications</h2>
+						<br>
+						<ul>
+							<li>May require <b>various hardware</b>: SPI, I<sup>2</sup>C, WiFi, BLE, nRF24, Sigfox, LoRa, ...</li>
+							<li><b>PCAP</b> compatible tools are great</li>
+							<li>Beware the <b>cost</b> (a lot of $$$) !</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Bluetooth Low Energy MITM</h2>
+						<br>
+						<img src="images/mitm-ouverture.png" style="border: none;">
+						<br>
+						<a href="https://github.com/DigitalSecurity/btlejuice">https://github.com/DigitalSecurity/btlejuice</a>
+					</section>
+
+					<section>
+						<h2>How our smartlock works</h2>
+						<h6>(based on a MitM attack)</h6>
+						<br>
+						<ol>
+							<li class="fragment"><b>App</b> retrieves a <b>Nonce</b> from the lock</li>
+							<li class="fragment"><b>App</b> encrypts a token and send it to the lock</li>
+							<li class="fragment"><b>Lock</b> decrypts token and <b>react accordingly</b></li>
+						</ol>
+					</section>
+
+					<section>
+						<h2>By the way ...</h2>
+						<br>
+						<ul><li style="list-style-type: none;">
+						The mobile app authenticates the smartlock only by its exposed service UUID:
+						<br>
+						<img src="images/android-scanner.png" style="border: none;">
+					</li></ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Step #8: find bugs &amp; vulns</h2>
+						<br>
+						<img src="images/bugs.gif" class="plain">
+					</section>
+
+					<section>
+						<h2>Search bugs &amp; vulns</h2>
+						<br>
+						<ul>
+							<li>Default password/key</li>
+							<li>Escape shell</li>
+							<li>Buffer overflow</li>
+							<li>Misconfiguration</li>
+							<li>...</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Smartlock Security features</h2>
+						<br>
+						<ul>
+							<li class="fragment">Relies on a <b>Nonce</b> generated by the smartlock to avoid <b>replay attacks</b></li>
+							<br>
+							<li class="fragment">True <b>AES-based encryption</b> used, cannot break it</li>
+							<br>
+							<li class="fragment">Resisted to <b>fuzzing</b>, we did not managed to force open the lock</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>But ...</h2>
+					</section>
+
+					<section>
+						<h2>... is it &laquo;Random&raquo; ?</h2>
+						<br>
+						<img src="images/ble-random-bug.png" class="plain" style="width: 80%;">
+					</section>
+
+					<section>
+						<h2>I've already seen that ...</h2>
+						<br>
+						<img src="images/xkcd_random_number.png" class="plain" style="width: 60%;">
+						<h6>(source: XKCD)</h6>
+					</section>
+
+					<section>
+						<h2>Security issues</h2>
+						<br>
+						<ul>
+							<li class="fragment"><b>Spoofing</b>: App does not authenticate the smartlock it connects to</li>
+							<br>
+							<li class="fragment">Random Nonce is <b><u>not random</u></b> at all !</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>So what ?</h2>
+						<br>
+						<ul>
+							<li>An attacker may <b>spoof the smartlock</b> to force the App to send an encrypted token</li>
+							<br>
+							<li>He/she may be able to <b>replay a valid token</b> as the nonce is always the same</li>
+						</ul>
+					</section>
+
+					<section>
+						<img src="images/letsdoit.jpg" class="plain">
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Step #9: Exploit !</h2>
+						<br>
+						<img src="images/exploit.gif" class="plain">
+					</section>
+
+					<section>
+						<h3>Spoof smartlock</h3>
+						<br>
+						<ul>
+							<li>Use <i>NodeJS</i> with <i>Bleno</i> FTW</li>
+							<br>
+							<li>Exploit based on our <i>Mockle</i> library</li>
+						</ul>
+						<br><br>
+						<a href="https://github.com/DigitalSecurity/mockle">https://github.com/DigitalSecurity/mockle</a>
+					</section>
+
+					<section>
+						<h3>Spoofing smartlock</h3>
+						<br>
+						<pre><code>$ sudo node capture-token.js
+[setup] creating mock for device XXXXXXX (xx:xx:xx:6b:fc:88)
+[setup] services registered
+[ mock] accepted connection from address: 5e:74:79:1e:5f:a9
+> Register callback for service 6e4...ca9e:6e4...ca9e
+> Read Random, provide default value 1.
+> End of transmission
+[i] Token written to `token.json`</code></pre>
+					</section>
+
+					<section>
+						<h3>Replay token</h3>
+						<br>
+						<pre><code>$ sudo node replay-token.js
+BTLE interface up and running, starting scanning ...
+
+[i] Target found, replaying token ...
+done</code></pre>
+					</section>
+
+					<section>
+						<video controls>
+							<source src="images/demo.cropped.mp4" type="video/mp4">
+						</video>
+					</section>
+
+					<section>
+						<h3>Bug is now fixed</h3>
+						<br>
+						<img src="images/bugfix.png" class="plain" style="width: 60%;">
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Conclusion</h2>
+					</section>
+
+					<section>
+						<h3>To be improved</h3>
+						<br>
+						<ul>
+							<li>We have been using this methodology <b>intensively</b> since the last two years</li><br>
+							<li>There is <b>space for improvements</b>, obviously</li><br>
+							<li>Vendor fixed (some) of the vulnerabilities we demonstrated</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>Pro tips</h3>
+						<br>
+						<ul>
+							<li class="fragment">Take your time and <b>document all the things</b></li>
+							<li class="fragment" >Read datasheets <b>carefully</b></li>
+							<li class="fragment" >Learn how to <b>master Inkscape</b>, it helps a lot</li>
+							<li class="fragment" >Start from the bottom (PCB) and go up !</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>Pro tips (cont'd)</h3>
+						<br>
+						<ul>
+							<li class="fragment">As usual, <b>know your tools</b> and how to use them</li><br>
+							<li class="fragment"><b>Share and learn</b> from others (many cool tricks to discover)</li>
+						</ul>
+					</section>
+
+					<section>
+						<img src="images/v600.png" style="border: none; width: 45%;">
+						<img src="images/v600.2.jpg" style="border: none; width: 45%;">
+					</section>
+
+					<section>
+						<h3>Practice !</h3>
+						<br>
+						<ul>
+							<li>Soldering (tiny wires)</li>
+							<li>Desoldering with hot air gun</li>
+							<li>Use the <i>scope</i></li>
+							<li>Use the <i>scope</i> again</li>
+							<li>Code on embedded devices</li>
+							<li>...</li>
+						</ul>
+					</section>
+
+				</section>
+
+				<section>
+					<h2>Questions ?</h2>
+					<br><br><br>
+					<div style="width: 20%; float: left; height: 100px; border-right: 2px solid #333; padding-right: 20px;">
+						<h5 style="line-height: 100px; vertical-align: middle;">Contact</h5>
+					</div>
+					<div style="width: 70%; float: left; text-align: left; height: 300px; padding-left: 50px;">
+						<a href="#"><i class="fa fa-twitter"></i> @virtualabs</a><br>
+						<a href="#"><i class="fa fa-envelope"></i> damien.cauquil@digital.security</a>
+					</div>
+				</section>
+
+				</section>
+
+
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				],
+				transition: 'none',
+			});
+		</script>
+	</body>
+</html>
